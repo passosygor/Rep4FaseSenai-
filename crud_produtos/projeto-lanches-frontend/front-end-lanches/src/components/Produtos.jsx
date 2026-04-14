@@ -123,16 +123,6 @@ const Produtos = () => {
       console.log("Erro ao salvar:", e);  
     }  
   };  
-
-  const remover = (id) => {
-    const ok = excluirProduto(id);
-    if(ok === ""){
-      alert("produto não excluido")
-      return false;
-    }
-    alert("Produto excluido com sucesso")
-
-  }
  
 
   return (
@@ -167,7 +157,7 @@ const Produtos = () => {
                   Editar  
                 </button>  
                 &nbsp;  
-                <button className="btn btn-danger" onClick={() => remover(p.id)}>  
+                <button className="btn btn-danger" onClick={{}}>  
                   Excluir  
                 </button>  
               </td>  
