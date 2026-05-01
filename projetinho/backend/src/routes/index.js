@@ -1,26 +1,11 @@
-// src/routes/index.js
-const express = require('express');
-const router = express.Router();
-const userController = require('../controllers/userController');
-const appointmentController = require('../controllers/appointmentController');
+import express from 'express';
+import router from 'express.Router()';
+import userController from '../controllers/userController.js';
+import appointmentController from '../controllers/appointmentController.js';
 
-router.post('/register', userController.register);
-router.post('/login', userController.login);
-router.post('/forgot-password', userController.forgotPassword);
+router.post('/register', userController.Register);
+router.post('/login', userController.Login);
+router.post('/appointments', appointmentController.CreateAppointment);
+router.get('/appointments', appointmentController.GetAppointments);
 
-router.post('/appointments', appointmentController.createAppointment);
-router.get('/appointments', appointmentController.getAppointments);
-
-module.exports = router;
-
-// src/server.js
-const express = require('express');
-const cors = require('cors');
-const routes = require('./routes/index');
-
-const app = express();
-app.use(cors());
-app.use(express.json());
-app.use('/api', routes);
-
-app.listen(3000, () => console.log('Servidor rodando na porta 3000'));
+export default router;

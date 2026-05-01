@@ -1,22 +1,15 @@
-const express = require('express');
-const cors = require('cors'); // Permite a conexão com o Front-end
+import express from 'express';
+import cors from 'cors';
+import routes from './routes/index'; // Importa as rotas que acabamos de criar
 
 const app = express();
 
-// Configurações (Middlewares)
-app.use(cors()); 
-app.use(express.json()); // Permite que o servidor entenda dados em JSON
+app.use(cors());
+app.use(express.json());
 
-// Rota de teste rápida
-app.get('/', (req, res) => {
-  res.send('🚀 Servidor da Clínica SENAI rodando perfeitamente!');
-});
+// Agora sim o sistema tem as URLs de /api/login, /api/register, etc!
+app.use('/api', routes); 
 
-// (Aqui no futuro nós vamos colocar as rotas de usuários e agendamentos)
-// const routes = require('./routes/index');
-// app.use('/api', routes);
-
-// Liga o servidor na porta 3000
 app.listen(3000, () => {
-  console.log('Servidor rodando na porta 3000 🚀');
+  console.log('Servidor da Clínica rodando na porta 3000 🚀');
 });

@@ -1,0 +1,67 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Usuario {
+  id            Int      @id @default(autoincrement())
+  nome          String   @db.VarChar(120)
+  email         String   @unique @db.VarChar(120)
+  senha         String   @db.VarChar(255)
+  perfil        String   @default("atendente") @db.VarChar(20)
+  ativo         Boolean  @default(true)
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+}
+
+model Cliente {
+  id            Int           @id @default(autoincrement())
+  nome          String        @db.VarChar(120)
+  email         String?       @unique @db.VarChar(120)
+  telefone      String?       @db.VarChar(20)
+  cpf           String?       @unique @db.VarChar(20)
+  endereco      String?       @db.VarChar(255)
+  cidade        String?       @db.VarChar(80)
+  uf            String?       @db.Char(2)
+  observacoes   String?
+  ativo         Boolean       @default(true)
+  criadoEm     DateTime      @default(now())
+  atualizadoEm DateTime      @updatedAt
+  agendamentos  Agendamento[]
+}
+
+model Profissional {
+  id             Int           @id @default(autoincrement())
+  nome           String        @db.VarChar(120)
+  email          String?       @unique @db.VarChar(120)
+  telefone       String?       @db.VarChar(20)
+  cpf            String?       @unique @db.VarChar(20)
+  especialidades String?
+  ativo          Boolean       @default(true)
+  criadoEm      DateTime      @default(now())
+  atualizadoEm  DateTime      @updatedAt
+  agendamentos   Agendamento[]
+}
+
+model Agendamento {
+  id              Int          @id @default(autoincrement())
+  clienteId       Int
+  profissionalId  Int
+  tipoServico     String       @db.VarChar(20)
+  dataHoraInicio  DateTime
+  dataHoraFim     DateTime
+  status          String       @default("agendado") @db.VarChar(20)
+  endereco        String?      @db.VarChar(255)
+  valorTotal      Decimal?     @db.Decimal(10, 2)
+  observacoes     String?
+  criadoEm       DateTime     @default(now())
+  atualizadoEm   DateTime     @updatedAt
+  cliente         Cliente      @relation(fields: [clienteId], references: [id])
+  profissional    Profissional @relation(fields: [profissionalId], references: [id])
+}

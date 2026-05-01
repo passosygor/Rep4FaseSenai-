@@ -1,19 +1,15 @@
-const prisma = require('../config/db');
+import prisma from '../config/db';
 
-exports.createAppointment = async (req, res) => {
+export async function CreateAppointment (req, res) {
   const { date, patientName, doctorId } = req.body;
   const appointmentDate = new Date(date);
 
-  // Validação: Uma consulta não pode ser agendada no mesmo horário para o mesmo médico.
   const conflict = await prisma.appointment.findFirst({
-    where: {
-      doctorId: Number(doctorId),
-      date: appointmentDate
-    }
+    where: { doctorId: Number(doctorId), date: appointmentDate }
   });
 
   if (conflict) {
-    return res.status(400).json({ error: "O médico já possui uma consulta neste horário." });
+    return res.status(400).json({ error: "O médico já possui consulta neste horário." });
   }
 
   try {
@@ -22,13 +18,11 @@ exports.createAppointment = async (req, res) => {
     });
     res.status(201).json(appointment);
   } catch (error) {
-    res.status(500).json({ error: "Erro ao agendar consulta." });
+    res.status(500).json({ error: "Erro ao agendar." });
   }
 };
 
-exports.getAppointments = async (req, res) => {
-  const appointments = await prisma.appointment.findMany({
-    include: { doctor: true }
-  });
+export async function GetAppointments (req, res) {
+  const appointments = await prisma.appointment.findMany({ include: { doctor: true } });
   res.json(appointments);
 };

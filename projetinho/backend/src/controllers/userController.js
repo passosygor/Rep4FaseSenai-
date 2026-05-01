@@ -1,6 +1,6 @@
-const prisma = require('../config/db');
+import prisma from '../config/db';
 
-exports.register = async (req, res) => {
+export async function Register (req, res) {
   const { cpf, password, name, role } = req.body;
   try {
     const user = await prisma.user.create({
@@ -12,26 +12,13 @@ exports.register = async (req, res) => {
   }
 };
 
-exports.login = async (req, res) => {
+export async function Login (req, res) {
   const { cpf, password } = req.body;
   const user = await prisma.user.findUnique({ where: { cpf } });
   
   if (user && user.password === password) {
-    res.json(user); // Login simples, sem JWT conforme solicitado
+    res.json(user);
   } else {
     res.status(401).json({ error: "CPF ou senha inválidos." });
-  }
-};
-
-exports.forgotPassword = async (req, res) => {
-  const { cpf, newPassword } = req.body;
-  try {
-    const user = await prisma.user.update({
-      where: { cpf },
-      data: { password: newPassword }
-    });
-    res.json({ message: "Senha atualizada com sucesso." });
-  } catch (error) {
-    res.status(404).json({ error: "CPF não encontrado." });
   }
 };
