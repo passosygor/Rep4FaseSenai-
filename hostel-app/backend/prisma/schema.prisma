@@ -1,0 +1,103 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ============================================================
+// 1. USUÁRIOS E HÓSPEDES
+// ============================================================
+
+model Usuario {
+  id               Int                @id @default(autoincrement())
+  nome             String             @db.VarChar(120)
+  email            String             @unique @db.VarChar(120)
+  senha            String             @db.VarChar(255)
+  perfil           String             @default("recepcionista") @db.VarChar(20)
+  ativo            Boolean            @default(true)
+  criadoEm         DateTime           @default(now())
+  atualizadoEm     DateTime           @updatedAt
+  
+  // Relacionamentos
+  reservas         Reserva[]          @relation("UsuarioReservas")
+  historicos       HistoricoReserva[] @relation("UsuarioHistorico")
+}
+
+model Hospede {
+  id               Int        @id @default(autoincrement())
+  nome             String     @db.VarChar(120)
+  email            String?    @unique @db.VarChar(120)
+  telefone         String?    @db.VarChar(20)
+  documento        String?    @unique @db.VarChar(20) // Antigo CPF, agora aceita Passaporte/RG
+  endereco         String?    @db.VarChar(255)
+  cidade           String?    @db.VarChar(80)
+  uf               String?    @db.Char(2)
+  observacoes      String?    @db.Text
+  ativo            Boolean    @default(true)
+  criadoEm         DateTime   @default(now())
+  atualizadoEm     DateTime   @updatedAt
+  
+  // Relacionamentos
+  reservas         Reserva[]
+}
+
+// ============================================================
+// 2. QUARTOS E RESERVAS
+// ============================================================
+
+model Quarto {
+  id               Int        @id @default(autoincrement())
+  numero           String     @unique @db.VarChar(10)
+  tipo             String     @db.VarChar(50)
+  capacidade       Int        @default(2)
+  valorDiaria      Decimal    @db.Decimal(10, 2)
+  statusAtual      String     @default("disponivel") @db.VarChar(20)
+  ativo            Boolean    @default(true)
+  
+  // Relacionamentos
+  reservas         Reserva[]
+}
+
+model Reserva {
+  id               Int        @id @default(autoincrement())
+  hospedeId        Int
+  quartoId         Int
+  responsavelId    Int
+  dataCheckIn      DateTime   @db.Date
+  dataCheckOut     DateTime   @db.Date
+  status           String     @default("confirmada") @db.VarChar(20)
+  valorTotal       Decimal?   @db.Decimal(10, 2)
+  observacoes      String?    @db.Text
+  criadoEm         DateTime   @default(now())
+  atualizadoEm     DateTime   @updatedAt
+
+  // Relacionamentos
+  hospede          Hospede            @relation(fields: [hospedeId], references: [id])
+  quarto           Quarto             @relation(fields: [quartoId], references: [id])
+  responsavel      Usuario            @relation("UsuarioReservas", fields: [responsavelId], references: [id])
+  historico        HistoricoReserva[]
+}
+
+// ============================================================
+// 3. AUDITORIA E RASTREABILIDADE
+// ============================================================
+
+model HistoricoReserva {
+  id               Int      @id @default(autoincrement())
+  reservaId        Int
+  usuarioId        Int
+  acao             String   @db.VarChar(20)
+  statusAntigo     String?  @db.VarChar(20)
+  statusNovo       String?  @db.VarChar(20)
+  dataMovimento    DateTime @default(now())
+  detalhes         String?  @db.Text
+
+  // Relacionamentos
+  reserva          Reserva  @relation(fields: [reservaId], references: [id], onDelete: Cascade)
+  usuario          Usuario  @relation("UsuarioHistorico", fields: [usuarioId], references: [id])
+}
